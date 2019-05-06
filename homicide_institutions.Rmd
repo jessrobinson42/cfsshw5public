@@ -32,7 +32,7 @@ homicide_data <- da34986.0002 %>%
         hom_rate = HOMICIDERATE, 
         prison_rate = PRISONRATE
   )  %>%
-  #add mental hospitalization rate and jail rate 
+  #add variables 
 mutate(menthosp_rate = ((menthosp_pop/adult_pop)*100),
        jail_rate = ((jail_pop/adult_pop)*100),
        inst_pop = (jail_pop + menthosp_pop + prison_pop),
@@ -47,6 +47,7 @@ For this assignment, I used the data from Prof. Bernard Harcourt's research of t
 ##Homicide Trends 
 
 ```{r echo=FALSE, message=FALSE}
+#plot homicide trends by year
 homicide_data %>%
   ggplot(mapping = aes(x = year, y = hom_rate)) +
   geom_line() + 
@@ -64,6 +65,7 @@ This investigation will consider the reasons this might be the case.
 
 ##Prisons and Jails
 ```{r echo=FALSE, message=FALSE}
+#plot prison, jail and homicide rate (1990s)
 homicide_data %>% 
   ggplot() + 
   geom_line(data = homicide_data, 
@@ -82,6 +84,7 @@ geom_line(data = homicide_data,
 ```
 
 ```{r echo=FALSE}
+#plot prison, jail and homicide rate overall
 ggplot() + 
   geom_line(data = homicide_data, 
      aes(x = year, y = prison_rate, color = "Prison Rate (per 100,000)")) +
@@ -107,7 +110,9 @@ However, looking at the second chart, we shows the general trend in homicids and
 
 
 ```{r echo=FALSE}
+#create a linear regression model for homicide rate as a function of prison and jail rate 
 homcarceral_mod <- lm(hom_rate ~ prison_rate + jail_rate, data = homicide_data)
+#call summary statistics for model 
 kable(tidy(homcarceral_mod))
 kable(glance(homcarceral_mod))
 ```
@@ -116,9 +121,10 @@ kable(glance(homcarceral_mod))
 Likewise, after running a regression, we see that the relationship between homicide rates and prison and jail rates is not statistically significant, with high p-values of 0.411 and 0.214 for prison rates and jail rates respectively.
 Moreover, these variables explain very little of the variance in homicide rate, with a model based on these values having an adjusted R-squared value of 0.06.
 
-##Mental Hospitals and institutionalization 
+##Mental Hospitals and Institutionalization 
 
 ```{r echo=FALSE}
+#plot prison, jail, mental hospitalization trends
 ggplot() + 
   geom_line(data = homicide_data, 
      aes(x = year, y = prison_rate, color = "Prison")) + 
@@ -142,6 +148,7 @@ Looking at the graph above, we see that while jail and prison rates inclined sig
 The large rate of institutionalization within mental hospitals suggests that theories of homicide trends based upon incapication ought to contend with this particular type of institution, and its potential effects on homicide rates. 
 
 ```{r echo=FALSE}
+#plot institutionalization rate and homicide rate 
 ggplot() + 
   geom_line(data = homicide_data, 
      aes(x = year, y = inst_rate, color = "Institutionalization Rate (per 100,000)")) + 
@@ -163,6 +170,7 @@ ggplot() +
 Through exploratory analysis, there seems to be a strong inverse relationship beteween the aggregate rate of institutionalization in prisons, jails, and mental hospitals, and the overall homicide rate in any given year, as demonstrated in the graph above.
 
 ```{r echo=FALSE}
+#plot institutionalization rate vs. homicide rate
 homicide_data %>%
   ggplot(mapping = aes(x = inst_rate, y = hom_rate10mil)) +
   geom_line() + 
@@ -177,7 +185,9 @@ homicide_data %>%
 Likewise, looking at homicde rate as a function of the institutionalization rate, we see a similar negative assoication over time occur. 
 
 ```{r echo=FALSE}
+#create a linear regression model for homicide rate as a function of prison, jail, and mental hospitalization rates 
 hominst_mod <- lm(hom_rate ~ prison_rate + jail_rate + menthosp_rate, data = homicide_data)
+#call summary stats
 kable(tidy(hominst_mod))
 kable(glance(hominst_mod))
 ```
@@ -189,7 +199,9 @@ Likewise, in this model, both the mental hospitalization rate and the jail rate 
 Moreover, if we create a an aggregate variable for prisons and jails, rather than looking a them individually, we have a model with p-values 0.00 for both the mental hospitalization rate and the aggregate incarceration rate, as seen below.
 
 ```{r echo=FALSE}
+#create aggregate model 
 hominst_mod2 <- lm(hom_rate ~ incarc_rate + menthosp_rate, data = homicide_data)
+#call summary stats
 kable(tidy(hominst_mod2))
 ```
 

@@ -46,7 +46,7 @@ However, looking at the second chart, we shows the general trend in homicids and
 
 Likewise, after running a regression, we see that the relationship between homicide rates and prison and jail rates is not statistically significant, with high p-values of 0.411 and 0.214 for prison rates and jail rates respectively. Moreover, these variables explain very little of the variance in homicide rate, with a model based on these values having an adjusted R-squared value of 0.06.
 
-Mental Hospitals and institutionalization
+Mental Hospitals and Institutionalization
 -----------------------------------------
 
 ![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-6-1.png)
