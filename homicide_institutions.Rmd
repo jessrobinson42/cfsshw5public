@@ -5,6 +5,10 @@ date: "May 6, 2019"
 output: 
   github_document
 ---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
 
 ```{r setup, include=FALSE}
 library(tidyverse)
@@ -17,7 +21,7 @@ theme_set(theme_linedraw())
 
 ##Data Source 
 
-```{r echo=FALSE}
+```{r}
 #load data
 load(here("ICPSR_34986 3", "DS0002", "34986-0002-Data.rda"))
 homicide_data <- da34986.0002 %>%
@@ -46,7 +50,7 @@ For this assignment, I used the data from Prof. Bernard Harcourt's research of t
 
 ##Homicide Trends 
 
-```{r echo=FALSE, message=FALSE}
+```{r}
 #plot homicide trends by year
 homicide_data %>%
   ggplot(mapping = aes(x = year, y = hom_rate)) +
@@ -64,7 +68,7 @@ As we can see, the homicide rate declines sharply from the 1930s to 1950s, then 
 This investigation will consider the reasons this might be the case.
 
 ##Prisons and Jails
-```{r echo=FALSE, message=FALSE}
+```{r}
 #plot prison, jail and homicide rate (1990s)
 homicide_data %>% 
   ggplot() + 
@@ -83,7 +87,7 @@ geom_line(data = homicide_data,
   theme(legend.position = "bottom")
 ```
 
-```{r echo=FALSE}
+```{r}
 #plot prison, jail and homicide rate overall
 ggplot() + 
   geom_line(data = homicide_data, 
@@ -109,7 +113,7 @@ Looking at the first chart above, this explanation seems somewhat plausible.
 However, looking at the second chart, we shows the general trend in homicids and incarceration since 1934, we see that a change in homicides does not correlate strongly with either the rise in prison population nor the rise in jail population over the period from 1934 until the 1990s. 
 
 
-```{r echo=FALSE}
+```{r}
 #create a linear regression model for homicide rate as a function of prison and jail rate 
 homcarceral_mod <- lm(hom_rate ~ prison_rate + jail_rate, data = homicide_data)
 #call summary statistics for model 
@@ -123,7 +127,7 @@ Moreover, these variables explain very little of the variance in homicide rate, 
 
 ##Mental Hospitals and Institutionalization 
 
-```{r echo=FALSE}
+```{r}
 #plot prison, jail, mental hospitalization trends
 ggplot() + 
   geom_line(data = homicide_data, 
@@ -147,7 +151,7 @@ Looking at the graph above, we see that while jail and prison rates inclined sig
 
 The large rate of institutionalization within mental hospitals suggests that theories of homicide trends based upon incapication ought to contend with this particular type of institution, and its potential effects on homicide rates. 
 
-```{r echo=FALSE}
+```{r}
 #plot institutionalization rate and homicide rate 
 ggplot() + 
   geom_line(data = homicide_data, 
@@ -169,7 +173,7 @@ ggplot() +
 
 Through exploratory analysis, there seems to be a strong inverse relationship beteween the aggregate rate of institutionalization in prisons, jails, and mental hospitals, and the overall homicide rate in any given year, as demonstrated in the graph above.
 
-```{r echo=FALSE}
+```{r}
 #plot institutionalization rate vs. homicide rate
 homicide_data %>%
   ggplot(mapping = aes(x = inst_rate, y = hom_rate10mil)) +
@@ -184,7 +188,7 @@ homicide_data %>%
 
 Likewise, looking at homicde rate as a function of the institutionalization rate, we see a similar negative assoication over time occur. 
 
-```{r echo=FALSE}
+```{r}
 #create a linear regression model for homicide rate as a function of prison, jail, and mental hospitalization rates 
 hominst_mod <- lm(hom_rate ~ prison_rate + jail_rate + menthosp_rate, data = homicide_data)
 #call summary stats
@@ -198,7 +202,7 @@ Likewise, in this model, both the mental hospitalization rate and the jail rate 
 
 Moreover, if we create a an aggregate variable for prisons and jails, rather than looking a them individually, we have a model with p-values 0.00 for both the mental hospitalization rate and the aggregate incarceration rate, as seen below.
 
-```{r echo=FALSE}
+```{r}
 #create aggregate model 
 hominst_mod2 <- lm(hom_rate ~ incarc_rate + menthosp_rate, data = homicide_data)
 #call summary stats

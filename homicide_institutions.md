@@ -11,22 +11,16 @@ For this assignment, I used the data from Prof. Bernard Harcourt's research of t
 Homicide Trends
 ---------------
 
-![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](Figs/unnamed-chunk-2-1.png)
 
 The chart above shows the homicide rate per 100,000 people from 1934 to 2001. As we can see, the homicide rate declines sharply from the 1930s to 1950s, then rises again from the 1960s through the 1980s, before declining once again. This investigation will consider the reasons this might be the case.
 
 Prisons and Jails
 -----------------
 
-    ## Warning: Removed 56 rows containing missing values (geom_path).
+![](Figs/unnamed-chunk-3-1.png)
 
-    ## Warning: Removed 56 rows containing missing values (geom_path).
-
-    ## Warning: Removed 56 rows containing missing values (geom_path).
-
-![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-3-1.png)
-
-![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](Figs/unnamed-chunk-4-1.png)
 
 It is sometimes hypothesized that a rise in the rate of penal incarceration reduces the rate of homicides. The causal mechanism behind these theories is generally that prison and jail deter or incapacite the people who would otherwise commit homicides.
 
@@ -49,7 +43,7 @@ Likewise, after running a regression, we see that the relationship between homic
 Mental Hospitals and Institutionalization
 -----------------------------------------
 
-![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](Figs/unnamed-chunk-6-1.png)
 
 However, while prison and jail rates are not strongly associated with changes in homicide rates pre-1990, other forms of institutionalization adjacent to the carceral apparatus may explain some of the variation in homicide rates.
 
@@ -57,16 +51,11 @@ Looking at the graph above, we see that while jail and prison rates inclined sig
 
 The large rate of institutionalization within mental hospitals suggests that theories of homicide trends based upon incapication ought to contend with this particular type of institution, and its potential effects on homicide rates.
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](Figs/unnamed-chunk-7-1.png)
 
 Through exploratory analysis, there seems to be a strong inverse relationship beteween the aggregate rate of institutionalization in prisons, jails, and mental hospitals, and the overall homicide rate in any given year, as demonstrated in the graph above.
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
-
-![](homicide_institutions_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](Figs/unnamed-chunk-8-1.png)
 
 Likewise, looking at homicde rate as a function of the institutionalization rate, we see a similar negative assoication over time occur.
 
