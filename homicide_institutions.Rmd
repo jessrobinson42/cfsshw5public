@@ -1,0 +1,214 @@
+---
+title: "Mental Hospitalizations, Institutionalization, and Homicide Rate"
+author: "Jess Robinson"
+date: "May 6, 2019"
+output: 
+  github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(knitr)
+library(readr)
+library(broom)
+theme_set(theme_linedraw())
+```
+
+##Data Source 
+
+```{r echo=FALSE}
+#load data
+load(here("ICPSR_34986 3", "DS0002", "34986-0002-Data.rda"))
+homicide_data <- da34986.0002 %>%
+  #remove unused variables
+  select(-POVERTYRATE, -UNEMPLOYRATE, -YOUTHPOPRATE) %>%
+  #rename variables
+  rename(year = YEAR,
+        adult_pop = ADULTPOP,
+        prison_pop = PRISONPOP,
+        jail_pop = SJAILPOP, 
+        menthosp_pop = ALLRESMH,
+        hom_rate = HOMICIDERATE, 
+        prison_rate = PRISONRATE
+  )  %>%
+  #add mental hospitalization rate and jail rate 
+mutate(menthosp_rate = ((menthosp_pop/adult_pop)*100),
+       jail_rate = ((jail_pop/adult_pop)*100),
+       inst_pop = (jail_pop + menthosp_pop + prison_pop),
+       inst_rate = ((inst_pop/adult_pop)*100),
+       hom_rate10mil  = (hom_rate*100),
+       incarc_rate = (prison_rate + jail_rate)
+)
+```
+
+For this assignment, I used the data from Prof. Bernard Harcourt's research of the impact of mental hospitalization and prison's on the homicide rate. Data, and related publications based upon this data, can be found [here](https://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/34986). 
+
+##Homicide Trends 
+
+```{r echo=FALSE, message=FALSE}
+homicide_data %>%
+  ggplot(mapping = aes(x = year, y = hom_rate)) +
+  geom_line() + 
+  geom_smooth() +
+  labs(title = "Homicide Rate by Year (1934-2001)",
+       x = "Year",
+       y = "Homicide Rate (per 100,000 people) ",
+       caption = "Source: An Institutionalization Effect: 
+       The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001 (ICPSR 34986)")
+```
+
+The chart above shows the homicide rate per 100,000 people from  1934 to 2001. 
+As we can see, the homicide rate declines sharply from the 1930s to 1950s, then rises again from the 1960s through the 1980s, before declining once again. 
+This investigation will consider the reasons this might be the case.
+
+##Prisons and Jails
+```{r echo=FALSE, message=FALSE}
+homicide_data %>% 
+  ggplot() + 
+  geom_line(data = homicide_data, 
+     aes(x = year, y = prison_rate, color = "Prison Rate (per 100,000)")) +
+geom_line(data = homicide_data, 
+     aes(x = year, y = jail_rate, color = "Jail Rate (per 100,000)")) +
+  geom_line(data = homicide_data,
+            aes(x = year, y = hom_rate10mil, color = "Homicide Rate (per 10 million)")) +
+  scale_x_continuous(limits = c(1990, 2001)) +
+  labs(title = "Homicide, Prison, and Jail Rate by Year (1990-2001)",
+       x = "Year",
+       y = "Rate",
+       caption = "Source: An Institutionalization Effect: 
+       The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001 (ICPSR 34986)") + 
+  theme(legend.position = "bottom")
+```
+
+```{r echo=FALSE}
+ggplot() + 
+  geom_line(data = homicide_data, 
+     aes(x = year, y = prison_rate, color = "Prison Rate (per 100,000)")) +
+geom_line(data = homicide_data, 
+     aes(x = year, y = jail_rate, color = "Jail Rate (per 100,000)")) +
+  geom_line(data = homicide_data,
+            aes(x = year, y = hom_rate10mil, color = "Homicide Rate (per 10 million)")) +
+  labs(title = "Homicide, Prison, and Jail Rate by Year (1934 - 2001)",
+       x = "Year",
+       y = "Rate",
+       caption = "Source: An Institutionalization Effect: 
+       The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001 (ICPSR 34986)") + 
+  theme(legend.position = "bottom")
+```
+
+It is sometimes hypothesized that a rise in the rate of penal incarceration reduces the rate of homicides. 
+The causal mechanism behind these theories is generally that prison and jail deter or incapacite the people who would otherwise commit homicides. 
+
+This is especially the case in theories that explain the 1990s drop in crime. 
+Looking at the first chart above, this explanation seems somewhat plausible. 
+
+However, looking at the second chart, we shows the general trend in homicids and incarceration since 1934, we see that a change in homicides does not correlate strongly with either the rise in prison population nor the rise in jail population over the period from 1934 until the 1990s. 
+
+
+```{r echo=FALSE}
+homcarceral_mod <- lm(hom_rate ~ prison_rate + jail_rate, data = homicide_data)
+kable(tidy(homcarceral_mod))
+kable(glance(homcarceral_mod))
+```
+
+
+Likewise, after running a regression, we see that the relationship between homicide rates and prison and jail rates is not statistically significant, with high p-values of 0.411 and 0.214 for prison rates and jail rates respectively.
+Moreover, these variables explain very little of the variance in homicide rate, with a model based on these values having an adjusted R-squared value of 0.06.
+
+##Mental Hospitals and institutionalization 
+
+```{r echo=FALSE}
+ggplot() + 
+  geom_line(data = homicide_data, 
+     aes(x = year, y = prison_rate, color = "Prison")) + 
+  geom_line(data = homicide_data,
+            aes(x = year, y = jail_rate, color = "Jail")) +
+  geom_line(data = homicide_data,
+            aes(x = year, y = menthosp_rate, color = "Mental Hospilization")) +
+  labs(title = "Rates of Institionalization by Year",
+       x = "Year",
+       y = "Rates (per 100,000 people)",
+       color = "Type of Institionalization",
+       caption = "Source: An Institutionalization Effect: 
+       The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001 (ICPSR 34986)") + 
+  theme(legend.position = "bottom")
+```
+
+However, while prison and jail rates are not strongly associated with changes in homicide rates pre-1990, other forms of institutionalization adjacent to the carceral apparatus may explain some of the variation in homicide rates. 
+
+Looking at the graph above, we see that while jail and prison rates inclined significantly since the first half of the twentieth century, mental hospitalization had long been a major form of form of institutionalization, which has since declined. 
+
+The large rate of institutionalization within mental hospitals suggests that theories of homicide trends based upon incapication ought to contend with this particular type of institution, and its potential effects on homicide rates. 
+
+```{r echo=FALSE}
+ggplot() + 
+  geom_line(data = homicide_data, 
+     aes(x = year, y = inst_rate, color = "Institutionalization Rate (per 100,000)")) + 
+   geom_line(data = homicide_data,
+            aes(x = year, y = hom_rate10mil, color = "Homicide Rate (per 10 million)")) +
+   geom_smooth(data = homicide_data, 
+     aes(x = year, y = inst_rate)) + 
+    geom_smooth(data = homicide_data,
+            aes(x = year, y = hom_rate10mil))  +
+  labs(title = "Rates of People in Institutions and Homicide Rate, by Year",
+       x = "Year",
+       y = "Rates",
+       color = "",
+       caption = "Source: An Institutionalization Effect: 
+       The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001 (ICPSR 34986)") + 
+  theme(legend.position = "bottom")
+```
+
+Through exploratory analysis, there seems to be a strong inverse relationship beteween the aggregate rate of institutionalization in prisons, jails, and mental hospitals, and the overall homicide rate in any given year, as demonstrated in the graph above.
+
+```{r echo=FALSE}
+homicide_data %>%
+  ggplot(mapping = aes(x = inst_rate, y = hom_rate10mil)) +
+  geom_line() + 
+  geom_smooth() +
+  labs(title = "Homicide Rate by Institutionalization Rate",
+       x = "Institutionalization Rate (per 100,000)",
+       y = "Homicide Rate (per 10 million",
+       caption = "Source: An institutionalization Effect: 
+       The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001 (ICPSR 34986)")
+```
+
+Likewise, looking at homicde rate as a function of the institutionalization rate, we see a similar negative assoication over time occur. 
+
+```{r echo=FALSE}
+hominst_mod <- lm(hom_rate ~ prison_rate + jail_rate + menthosp_rate, data = homicide_data)
+kable(tidy(hominst_mod))
+kable(glance(hominst_mod))
+```
+
+When we include mental hospitalization in our analysis, we see that, in contrast to a model based solely on prisons and jails, this model explains much more of the homicide trends we see, as demonstrated in the statistcal analysis above.
+Regressing the homicide rate on the jail, prison, and mental hospitalization rate, we are able to explain approximately 60% of the variation in homicide rates. 
+Likewise, in this model, both the mental hospitalization rate and the jail rate are statistically signficant variables, with p-values of 0.01 and 0.00 respectively. 
+
+Moreover, if we create a an aggregate variable for prisons and jails, rather than looking a them individually, we have a model with p-values 0.00 for both the mental hospitalization rate and the aggregate incarceration rate, as seen below.
+
+```{r echo=FALSE}
+hominst_mod2 <- lm(hom_rate ~ incarc_rate + menthosp_rate, data = homicide_data)
+kable(tidy(hominst_mod2))
+```
+
+##Conclusion
+
+This anaylsis suggests that the a broader understanding institutionalization as its relates to crime ought to be considered. 
+Looking at the data explored above, it appears that mental hospitalizations, rather than simply jails and prisons, are associated with drops in homicide. 
+This deepens our understanding of the relationship between mass incarceration and the 1990s crime drop, as it suggests that incapication often plays a role in homicide trends, if one understands incapication more broadly. 
+More anaylsis is needed to develop a more-detailed and potential causal account of the the relationship between understudied forms of institutionalization, such as mental hospitalizations and its imapct on crime rates in a historical perspective. 
+
+##Sources and Further Reading
+
+**Source:** [An Institutionalization Effect: The Impact of Mental Hospitalization and Imprisonment on Homicide in the United States, 1934 - 2001](https://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/34986)
+
+**Further Readings on Crime, Mass Incarceration, and Mental Hospitalization**
+
+[Understanding Why Crime Fell in the 1990s: Four Factors that Explain the Decline and Six that Do Not](http://pricetheory.uchicago.edu/levitt/Papers/LevittUnderstandingWhyCrime2004.pdf)
+
+[Penrose's Law revisited: The relationship between mental institution beds, prison population and crime rate](https://www.tandfonline.com/doi/abs/10.1080/08039480802298697?journalCode=ipsc20)
+
+[Reducing mass incarceration: Lessons from the deinstitutionalization of mental hospitals in the 1960s](https://heinonline.org/HOL/LandingPage?handle=hein.journals/osjcl9&div=7&id=&page=&t=1557132705)
+
